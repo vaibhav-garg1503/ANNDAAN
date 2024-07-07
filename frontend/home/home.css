@@ -1,15 +1,16 @@
-/* home.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
     color: #333;
 }
 
 header {
-    background-color: darkolivegreen;
-    padding: 1em 0;
+    background-color: darkolivegreen; 
+    color: #fff;
+    padding: 10px 0;
 }
 
 nav ul {
@@ -25,42 +26,57 @@ nav ul li {
 }
 
 nav ul li a {
-    color: white;
+    color: #fff;
     text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
+    padding: 5px 10px;
+    position: relative; /* Ensure proper stacking context */
 }
 
-nav ul li a:hover {
-    background-color: white;
-    color: darkolivegreen;
-    padding: 0.5em;
-    border-radius: 5px;
+nav ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(85, 107, 47, 0); 
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover::before {
+    background-color: rgba(85, 107, 47, 0.5); 
 }
 
 
+/* Slideshow container */
 .slideshow-container {
     max-width: 100%;
     position: relative;
     overflow: hidden;
     height: 400px;
-  }
-  
-  /* Slides */
-  .slideshow-slide {
-    display: none;
+}
+
+/* Slides */
+.slideshow-slide {
     position: absolute;
     width: 100%;
-  }
-  
-  .slideshow-slide img {
+    opacity: 0;
+    transition: opacity 1s ease; /* Fade transition */
+}
+
+/* Show active slide */
+.slideshow-slide.active {
+    opacity: 1;
+}
+
+.slideshow-slide img {
     width: 100%;
     height: 100%;
     object-fit: cover; 
-  }
-  
+}
 
-  .dot {
+/* Dots for navigation */
+.dot {
     height: 15px;
     width: 15px;
     margin: 0 2px;
@@ -71,7 +87,7 @@ nav ul li a:hover {
     cursor: pointer;
 }
 
-.active, .dot:hover {
+.dot.active, .dot:hover {
     background-color: darkolivegreen;
 }
 

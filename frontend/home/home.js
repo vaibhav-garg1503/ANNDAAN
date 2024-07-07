@@ -3,17 +3,26 @@ const slides = document.querySelectorAll('.slideshow-slide');
 const dots = document.querySelectorAll('.dot');
 
 function showSlides() {
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].style.display = 'none';
-    }
+    // Hide all slides
+    slides.forEach((slide) => {
+        slide.classList.remove('active');
+    });
+
+    // Increment slideIndex and reset if necessary
     slideIndex++;
     if (slideIndex > slides.length) { slideIndex = 1; }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active", "");
-    }
-    slides[slideIndex - 1].style.display = 'block';
-    dots[slideIndex - 1].className += " active";
-    setTimeout(showSlides, 3000); // Change image every 3 seconds (adjust as needed)
+
+    // Display the current slide with fade effect
+    slides[slideIndex - 1].classList.add('active');
+
+    // Update dots for navigation
+    dots.forEach((dot) => {
+        dot.classList.remove('active');
+    });
+    dots[slideIndex - 1].classList.add('active');
+
+    // Call showSlides() recursively
+    setTimeout(showSlides, 3000); // Change slide every 3 seconds (adjust as needed)
 }
 
 function currentSlide(n) {
@@ -21,16 +30,24 @@ function currentSlide(n) {
 }
 
 function showSlide(n) {
+    // Reset slideIndex if out of bounds
     if (n > slides.length) { slideIndex = 1; }
     if (n < 1) { slideIndex = slides.length; }
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].style.display = 'none';
-    }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active", "");
-    }
-    slides[slideIndex - 1].style.display = 'block';
-    dots[slideIndex - 1].className += " active";
+
+    // Hide all slides
+    slides.forEach((slide) => {
+        slide.classList.remove('active');
+    });
+
+    // Display the current slide with fade effect
+    slides[slideIndex - 1].classList.add('active');
+
+    // Update dots for navigation
+    dots.forEach((dot) => {
+        dot.classList.remove('active');
+    });
+    dots[slideIndex - 1].classList.add('active');
 }
 
-showSlides(); // Initialize the slideshow
+// Initialize the slideshow
+showSlides();
