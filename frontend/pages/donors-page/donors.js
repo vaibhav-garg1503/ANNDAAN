@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     
     fetchDonors();
+    
     document.getElementById('donate-button').addEventListener('click', () => {
         alert('Redirecting to donation form...');
         window.location.href = '../../partials/hostel-registration.html';
