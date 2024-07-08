@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           data.forEach(donor => {
             const listItem = document.createElement('li');
-            listItem.textContent = `${donor.DonorName} donated ${donor.TotalDonations} pounds.`;
+            listItem.textContent = `${donor.Username} donated ${donor.TotalDonations} pounds.`;
             donorsList.appendChild(listItem);
           });
         } catch (error) {
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     fetchDonors();
     document.getElementById('donate-button').addEventListener('click', () => {
-        // Redirect to a donation form or show a donation modal
         alert('Redirecting to donation form...');
+        window.location.href = '../../partials/hostel-registration.html';
     });
 });
 
