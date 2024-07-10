@@ -140,3 +140,52 @@ nav ul li a:hover::before {
     font-size: 1.2em;
     margin-bottom: 20px;
 }
+
+.your-orders-section {
+    margin-top: 40px;
+}
+
+.your-orders-section h2 {
+    color: darkolivegreen;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#ordersTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+#ordersTable th, #ordersTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#ordersTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#ordersTable tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.no-orders-message {
+    text-align: center;
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+
+.no-orders-message {
+    font-size: 18px;
+    color: #333; 
+    padding: 10px; 
+    background-color: #f0f0f0; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}

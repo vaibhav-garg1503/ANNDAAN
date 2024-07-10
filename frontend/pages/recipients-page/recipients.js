@@ -52,10 +52,46 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Logout clicked');
             logout();
         });
+
+       fetchOrders(user.Username);
   
       } else {
         console.log('No user found in localStorage.');
+        displayNoOrdersMessage();
       }
 });
+
+function fetchOrders(username) {
+    axios.get(`http://localhost:3000/orders/${username}`)
+        .then(response => {
+            const orders = response.data.orders;
+            populateOrdersTable(orders);
+        })
+        .catch(error => {
+            console.error('Error fetching orders:', error);
+            alert('Failed to fetch orders. Please try again later.');
+        });
+}
+
+function populateOrdersTable(orders) {
+    const tableBody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';
+    if (orders.length === 0) {
+        displayNoOrdersMessage();
+    }
+    else {
+        orders.forEach(order => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).innerText = order.OrderID;
+            row.insertCell(1).innerText = order.FoodItems;
+            row.insertCell(2).innerText = order.Quantity;
+            row.insertCell(3).innerText = new Date(order.OrderedAt).toLocaleString();
+        });
+    }
+}
+
+function displayNoOrdersMessage() {
+    ordersTable.innerHTML = '<p class="no-orders-message">Receive your first donation now!</p>';
+}
 
 

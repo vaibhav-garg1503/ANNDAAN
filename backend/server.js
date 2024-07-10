@@ -330,6 +330,43 @@ app.post('/order', async (req, res) => {
     }
 });
 
+// Endpoint to fetch orders for a specific recipient
+app.get('/orders/:username', async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        // Connect to the database
+        let pool = await sql.connect(config);
+
+        // Retrieve RecipientID based on username
+        let result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .query(`SELECT R.RecipientID
+                    FROM Users U
+                    INNER JOIN Recipients R ON U.UserID = R.UserID
+                    WHERE U.Username = @username`);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Recipient not found' });
+        }
+
+        const recipientID = result.recordset[0].RecipientID;
+
+        // Fetch orders for the recipient
+        let ordersResult = await pool.request()
+            .input('recipientID', sql.Int, recipientID)
+            .query(`SELECT OrderID, FoodItems, Quantity, OrderedAt
+                    FROM Orders
+                    WHERE RecipientID = @recipientID`);
+
+        const orders = ordersResult.recordset;
+        res.json({ orders });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

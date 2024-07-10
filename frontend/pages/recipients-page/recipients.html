@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="recipients.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <title>Donors</title>
+    <title>Recipients</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="recipients.js" defer></script>
 </head>
 <body>
@@ -28,9 +29,25 @@
                 <p>Are you an orphanage, food bank, or old age home in need of food donations?Partner with us 
                    to receive nutritious food donations and support your community. 
                    Become a recipient partner today!</p>
-                <button id="register-button">Register Now</button>
+                <button id="register-button">Order Now</button>
             </div>
         </div>
+    </div>
+    <div class="your-orders-section">
+        <h2>Your Orders</h2>
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Food Items</th>
+                    <th>Quantity</th>
+                    <th>Ordered At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Orders will be inserted here by JavaScript -->
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
