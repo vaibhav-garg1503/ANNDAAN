@@ -34,7 +34,7 @@
                 <button type="submit" class="btn">Register</button>
             </div>
             <div class="form-group login-link">
-                <span>Already a user? <a href="/login">Login</a></span>
+                <span>Already a user? <a href="login.html">Login</a></span>
             </div>
         </form>
     </div>
@@ -56,7 +56,12 @@
                 .then(response => {
                     console.log(response.data);
                     alert('Hostel registered successfully!');
-                    // Redirect or perform any other action after registration
+                    
+                     // Store user data in localStorage or sessionStorage
+                     localStorage.setItem('user', JSON.stringify(response.data));
+
+                    // Redirect to the homepage
+                    window.location.href = '../home/home.html';
                 })
                 .catch(error => {
                     console.error('Error:', error);

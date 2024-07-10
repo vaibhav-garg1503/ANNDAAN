@@ -16,7 +16,7 @@
                 <li><a href="about.html">About</a></li>
                 <li><a href="../donors-page/donors.html">Donors</a></li>
                 <li><a href="../recipients-page/recipients.html">Recipients</a></li>
-                <li><a href="../join-page/join.html">Join</a></li>
+                <li id="join-link"><a href="../join-page/join.html">Join</a></li>
             </ul>
         </nav>
     </header>
@@ -48,5 +48,19 @@
             </div>
         </section>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+        console.log('Retrieved user:', user);
+
+        if (user && user.Username) {
+            const joinLink = document.getElementById('join-link');
+            joinLink.innerHTML = `<a href="#">${user.Username}</a>`;
+        } else {
+            console.log('No user found in localStorage.');
+        }
+    });
+
+    </script>
 </body>
 </html>

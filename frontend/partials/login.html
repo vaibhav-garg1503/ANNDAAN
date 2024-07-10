@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="emailOrUsername">Email or Username</label>
+                <input type="text" id="emailOrUsername" name="emailOrUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // script.js
+
+// Function to handle form submission
+async function handleLoginForm(event) {
+    event.preventDefault();
+
+    const emailOrUsername = document.getElementById('emailOrUsername').value;
+    const password = document.getElementById('password').value;
+    const axiosInstance = axios.create({
+    baseURL: 'http://localhost:3000',
+});
+
+
+    try {
+        const response = await axiosInstance.post('/login', {
+            emailOrUsername,
+            password
+        });
+
+        if (response.data.success) {
+            localStorage.setItem('user', JSON.stringify(response.data));
+            // Redirect to homepage
+            window.location.href = '../home/home.html';
+        } else {
+            alert('Login failed: ' + response.data.message);
+        }
+    } catch (error) {
+        console.error('An error occurred during login:', error);
+        alert('An error occurred during login. Please try again.');
+    }
+}
+
+// Attach event listener to form submission
+document.getElementById('loginForm').addEventListener('submit', handleLoginForm);
+
+    </script>
+</body>
+</html>

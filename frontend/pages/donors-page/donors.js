@@ -23,10 +23,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     
     fetchDonors();
-    
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    console.log('Retrieved user:', user);
+
+    if (user && user.Username) {
+        const joinLink = document.getElementById('join-link');
+        joinLink.innerHTML = `<a href="#">${user.Username}</a>`;
+    } else {
+        console.log('No user found in localStorage.');
+    }
+
     document.getElementById('donate-button').addEventListener('click', () => {
-        alert('Redirecting to donation form...');
-        window.location.href = '../../partials/hostel-registration.html';
-    });
+      if (user && user.Username) {
+          alert('Redirecting to donation form...');
+          window.location.href = '../../partials/donation-form.html';
+      } else {
+          alert('Redirecting to registration form...');
+          window.location.href = '../../partials/hostel-registration.html';
+      }
+  });
+  
 });
 

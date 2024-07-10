@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-    origin: 'http://127.0.0.1:5500' // Replace with your frontend URL
+    origin: 'http://127.0.0.1:5500' //frontend URL
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -20,7 +20,9 @@ const config = {
     server: 'localhost\\SQLEXPRESS',
     database: 'foodDB',
     options: {
-        trustServerCertificate: true // change to false for production
+        trustServerCertificate: true, // change to false for production
+        encrypt: true, 
+        enableArithAbort: true
     }
 };
 
@@ -172,7 +174,18 @@ app.post('/register_agency', async (req, res) => {
             .input('userId', sql.Int, userId)
             .query(insertQuery2);
 
-        res.status(200).send('Agency registered successfully!');
+
+            const userQuery = await pool.request()
+            .input('username', sql.VarChar, username)
+            .query('SELECT * FROM Users WHERE Username = @username');
+
+            if (userQuery.recordset.length === 0) {
+                return res.status(500).json({ message: 'Failed to retrieve user after insertion' });
+            }
+
+            const registeredUser = userQuery.recordset[0];
+            
+            res.status(200).send(registeredUser);
     } catch (err) {
         console.error('Error registering agency:', err);
         res.status(500).json({ error: 'Error registering agency', details: err.message });
@@ -180,6 +193,39 @@ app.post('/register_agency', async (req, res) => {
         if (pool) {
             pool.close(); // Close the connection pool after the request is handled
         }
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { emailOrUsername, password } = req.body;
+
+    try {
+        // Connect to database
+        await sql.connect(config);
+
+        // Query to check if user exists and verify credentials
+        const result = await sql.query`
+            SELECT * FROM Users
+            WHERE (Email = ${emailOrUsername} OR Username = ${emailOrUsername})
+            AND Password = ${password}
+        `;
+
+        // If user exists and credentials are correct
+        if (result.recordset.length > 0) {
+            const user = result.recordset[0];
+
+            // Respond with a success message and username
+            res.status(200).json({ success: true, message: 'Login successful', Username: user.Username });
+        } else {
+            // If credentials are incorrect or user doesn't exist
+            res.status(401).json({ success: false, message: 'Invalid credentials. Please try again.' });
+        }
+    } catch (error) {
+        console.error('Error during login:', error.message);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    } finally {
+        // Close SQL connection
+        await sql.close();
     }
 });
 
