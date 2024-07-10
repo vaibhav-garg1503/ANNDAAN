@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Form</title>
+    <link rel="stylesheet" href="donation-form.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Donate Food</h1>
+        <form id="donation-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="foodItems">Food Items:</label>
+                <input type="text" id="foodItems" name="foodItems" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="foodImage">Upload Image of Food:</label>
+                <input type="file" id="foodImage" name="foodImage" accept="image/*" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script src="donation-form.js"></script>
+</body>
+</html>

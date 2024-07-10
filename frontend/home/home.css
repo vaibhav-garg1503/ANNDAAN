@@ -54,11 +54,13 @@ nav ul li a:hover::before {
 
 .dropdown-toggle {
     cursor: pointer;
+    border-radius: 4px;
 }
 
 .dropdown-menu {
     display: none;
     position: absolute;
+    border-radius: 4px;
     background-color: #f9f9f9;
     min-width: 100px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -74,6 +76,10 @@ nav ul li a:hover::before {
 
 .dropdown-menu a:hover {background-color: #f1f1f1;}
 
+.dropdown:hover .dropdown-menu {
+    display: block;
+    transition: background-color 0.3s ease;
+}
 
 /* Slideshow container */
 .slideshow-container {

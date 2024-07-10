@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
 const sql = require('mssql');
 const cors = require('cors');
 
@@ -12,6 +14,17 @@ app.use(cors({
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, 'uploads/'));
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+const upload = multer({ storage: storage });
 
 // MSSMS configuration
 const config = {
@@ -102,7 +115,18 @@ app.post('/register_hostel', async (req, res) => {
             .input('userId', sql.Int, userId)
             .query(insertQuery2);
 
-        res.status(200).send('Hostel registered successfully!');
+            const userQuery = await pool.request()
+            .input('username', sql.VarChar, username)
+            .query('SELECT * FROM Users WHERE Username = @username');
+
+            if (userQuery.recordset.length === 0) {
+                return res.status(500).json({ message: 'Failed to retrieve user after insertion' });
+            }
+
+            const registeredUser = userQuery.recordset[0];
+            
+            res.status(200).send(registeredUser);
+
     } catch (err) {
         console.error('Error registering hostel:', err);
         res.status(500).json({ error: 'Error registering hostel', details: err.message });
@@ -215,7 +239,7 @@ app.post('/login', async (req, res) => {
             const user = result.recordset[0];
 
             // Respond with a success message and username
-            res.status(200).json({ success: true, message: 'Login successful', Username: user.Username });
+            res.status(200).json({ success: true, message: 'Login successful', Username: user.Username});
         } else {
             // If credentials are incorrect or user doesn't exist
             res.status(401).json({ success: false, message: 'Invalid credentials. Please try again.' });
@@ -227,8 +251,62 @@ app.post('/login', async (req, res) => {
         // Close SQL connection
         await sql.close();
     }
+    
 });
 
+// POST endpoint to handle form submission
+app.post('/submit-donation', upload.single('foodImage'), async (req, res) => {
+    try {
+      // Extract data from request body
+      const { foodItems, quantity, username } = req.body; // Include 'username' in req.body
+  
+      // Example: Retrieve DonorID based on Username
+      let pool = await sql.connect(config);
+      const result = await pool.request()
+        .query(`SELECT D.DonorID FROM Users U INNER JOIN Donors D ON U.UserID = D.UserID WHERE U.Username = '${username}'`);
+  
+      const donorID = result.recordset[0].DonorID;
+  
+      // Insert into Donations table
+      const imagePath = req.file ? req.file.path : null; // Check if req.file exists
+      await pool.request()
+        .input('donorID', sql.Int, donorID)
+        .input('foodItems', sql.VarChar(100), foodItems)
+        .input('quantity', sql.Int, quantity)
+        .input('imagePath', sql.VarChar(255), imagePath)
+        .query('INSERT INTO Donations (DonorID, FoodItems, Quantity, ImagePath) VALUES (@donorID, @foodItems, @quantity, @imagePath)');
+  
+      res.status(201).json({ message: 'Donation submitted successfully!' });
+    } catch (err) {
+      console.error('Error submitting donation:', err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/donations', async (req, res) => {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`SELECT * FROM Donations`;
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching donors:', err);
+        res.status(500).send('Error fetching donors');
+    } finally {
+        await sql.close();
+    }
+});
+
+    // Add order
+    app.post('/orders', async (req, res) => {
+        const { RecipientID, FoodItem, Quantity } = req.body;
+        try {
+            const result = await sql.query`INSERT INTO Orders (RecipientID, FoodItem, Quantity) VALUES (${RecipientID}, ${FoodItem}, ${Quantity})`;
+            res.status(201).send('Order added successfully');
+        } catch (err) {
+            res.status(500).send(err.message);
+        }
+    });
 
 // Start server
 app.listen(port, () => {
