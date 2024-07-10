@@ -10,13 +10,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const donations = response.data;
             const donationsTable = document.getElementById('donationsTable').getElementsByTagName('tbody')[0];
             donations.forEach(donation => {
+                let donatedAt = new Date(donation.DonatedAt);
+                let options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short',
+                    timeZone: 'Asia/Kolkata'
+                };
+                let formattedDate = donatedAt.toLocaleString('en-GB', options);
+
                 const row = donationsTable.insertRow();
                 row.insertCell(0).innerText = donation.FoodItems;
                 row.insertCell(1).innerText = donation.Quantity;
-                const actionCell = row.insertCell(2);
+                row.insertCell(2).innerText = formattedDate;
+                const actionCell = row.insertCell(3);
                 const orderButton = document.createElement('button');
                 orderButton.innerText = 'Order';
-                orderButton.onclick = () => addOrder(donation.FoodItem, donation.Quantity);
+                orderButton.onclick = () => addOrder(donation.FoodItems, donation.Quantity, row);
                 actionCell.appendChild(orderButton);
             });
         } catch (error) {
@@ -24,18 +39,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function addOrder(foodItem, quantity) {
-        const recipientID = prompt('Enter your Recipient ID:');
-        if (!recipientID) return;
-        try {
-            await axios.post('/api/orders', {
-                RecipientID: recipientID,
-                FoodItem: foodItem,
-                Quantity: quantity
-            });
-            alert('Order placed successfully');
-        } catch (error) {
-            console.error('Error placing order:', error);
+    function addOrder(foodItems, quantity, row) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const username = user.Username;
+
+        if (!username) {
+            alert('You must be logged in to place an order');
+            return;
         }
+        const axiosInstance = axios.create({
+            baseURL: 'http://localhost:3000',
+        });
+
+        axiosInstance.post('/order', {
+            username: username,
+            foodItems: foodItems,
+            quantity: quantity
+        })
+        .then(response => {
+            alert('Order placed successfully');
+            row.remove();
+        })
+        .catch(error => {
+            console.error('There was an error placing the order!', error);
+            alert('There was an error placing the order');
+        });
     }
 });

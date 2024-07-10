@@ -4,5 +4,6 @@ donate button to donation form (if logged in) registration form(else) ^
 fooditem picture
 donate button only if role is donor and order similar
 register button similar
+donors totaldonated count
 About us footer/contact card
 recipient page content

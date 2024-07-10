@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       function logout() {
           localStorage.removeItem('user');
-          window.location.href = '../home/home.html'; 
+          window.location.href = '../../home/home.html'; 
       }
 
       document.getElementById('logout-link').addEventListener('click', function(event) {

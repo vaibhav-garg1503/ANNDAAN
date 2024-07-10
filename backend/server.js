@@ -297,16 +297,38 @@ app.post('/submit-donation', upload.single('foodImage'), async (req, res) => {
     }
 });
 
-    // Add order
-    app.post('/orders', async (req, res) => {
-        const { RecipientID, FoodItem, Quantity } = req.body;
-        try {
-            const result = await sql.query`INSERT INTO Orders (RecipientID, FoodItem, Quantity) VALUES (${RecipientID}, ${FoodItem}, ${Quantity})`;
-            res.status(201).send('Order added successfully');
-        } catch (err) {
-            res.status(500).send(err.message);
+    // Order creation endpoint
+app.post('/order', async (req, res) => {
+    const { username, foodItems, quantity } = req.body;
+
+    try {
+        // Connect to the database
+        let pool = await sql.connect(config);
+
+        // Retrieve RecipientID based on username
+        let result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .query(`SELECT R.RecipientID FROM Users U INNER JOIN Recipients R ON U.UserID = R.UserID WHERE U.Username = '${username}'`);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Recipient not found' });
         }
-    });
+
+        const recipientID = result.recordset[0].RecipientID;
+
+        // Insert order into Orders table
+        await pool.request()
+            .input('recipientID', sql.Int, recipientID)
+            .input('foodItems', sql.VarChar, foodItems)
+            .input('quantity', sql.Int, quantity)
+            .query('INSERT INTO Orders (RecipientID, FoodItems, Quantity) VALUES (@recipientID, @foodItems, @quantity)');
+
+        res.status(201).json({ message: 'Order created successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 // Start server
 app.listen(port, () => {
