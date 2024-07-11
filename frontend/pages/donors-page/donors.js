@@ -74,10 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     document.getElementById('donate-button').addEventListener('click', () => {
-      if (user && user.Username) {
+      if (user && user.Username && user.Role === 'Donor') {
           alert('Redirecting to donation form...');
           window.location.href = '../../partials/donation-form.html';
-      } else {
+      } else if(user && user.Username && user.Role === 'Recipient'){
+        alert('You are not registered as a Donor. Redirecting to recipient dashboard...');
+        window.location.href = '../recipients-page/recipients.html';
+      }
+      else {
           alert('Redirecting to registration form...');
           window.location.href = '../../partials/hostel-registration.html';
       }

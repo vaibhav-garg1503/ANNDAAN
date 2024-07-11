@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('register-button').addEventListener('click', () => {
-        if (user && user.Username) {
+        if (user && user.Username && user.Role === 'Recipient') {
             alert('Redirecting to order form...');
             window.location.href = '../../partials/order-form.html';
+        } else if (user && user.Username && user.Role === 'Donor') {
+            alert('You are not registered as a Recipient. Redirecting to donor dashboard...');
+            window.location.href = '../donors-page/donors.html';
         } else {
             alert('Redirecting to registration form...');
             window.location.href = '../../partials/agency-registration.html';
@@ -12,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
     console.log('Retrieved user:', user);
 
-    if (user && user.Username) {
+    if (user && user.Username && user.Role === 'Recipient') {
         const joinLink = document.getElementById('join-link');
         joinLink.innerHTML = `
         <div class="dropdown">
@@ -53,9 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
             logout();
         });
 
-       fetchOrders(user.Username);
+        fetchOrders(user.Username);
   
-      } else {
+      } else if (user && user.Username && user.Role === 'Donor'){
+        console.log('User is a Donor.');
+        displayNoOrdersMessage();
+      }
+      else {
         console.log('No user found in localStorage.');
         displayNoOrdersMessage();
       }

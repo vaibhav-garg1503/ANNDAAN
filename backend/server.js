@@ -239,7 +239,7 @@ app.post('/login', async (req, res) => {
             const user = result.recordset[0];
 
             // Respond with a success message and username
-            res.status(200).json({ success: true, message: 'Login successful', Username: user.Username});
+            res.status(200).json({ success: true, message: 'Login successful', Username: user.Username, Role: user.Role});
         } else {
             // If credentials are incorrect or user doesn't exist
             res.status(401).json({ success: false, message: 'Invalid credentials. Please try again.' });
