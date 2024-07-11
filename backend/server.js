@@ -321,7 +321,7 @@ app.post('/submit-donation', upload.single('foodImage'), async (req, res) => {
 
     // Order creation endpoint
 app.post('/order', async (req, res) => {
-    const { username, foodItems, quantity } = req.body;
+    const { username, donationID, foodItems, quantity } = req.body;
 
     try {
         // Connect to the database
@@ -344,6 +344,10 @@ app.post('/order', async (req, res) => {
             .input('foodItems', sql.VarChar, foodItems)
             .input('quantity', sql.Int, quantity)
             .query('INSERT INTO Orders (RecipientID, FoodItems, Quantity) VALUES (@recipientID, @foodItems, @quantity)');
+
+        await pool.request()
+        .input('donationID', sql.Int, donationID)
+        .query(`DELETE FROM Donations WHERE DonationID = @donationID`);
 
         res.status(201).json({ message: 'Order created successfully' });
     } catch (err) {

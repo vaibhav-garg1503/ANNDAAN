@@ -25,13 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 let formattedDate = donatedAt.toLocaleString('en-GB', options);
 
                 const row = donationsTable.insertRow();
-                row.insertCell(0).innerText = donation.FoodItems;
-                row.insertCell(1).innerText = donation.Quantity;
-                row.insertCell(2).innerText = formattedDate;
-                const actionCell = row.insertCell(3);
+                row.insertCell(0).innerText = donation.DonationID;
+                row.insertCell(1).innerText = donation.FoodItems;
+                row.insertCell(2).innerText = donation.Quantity;
+                row.insertCell(3).innerText = formattedDate;
+                const actionCell = row.insertCell(4);
                 const orderButton = document.createElement('button');
                 orderButton.innerText = 'Order';
-                orderButton.onclick = () => addOrder(donation.FoodItems, donation.Quantity, row);
+                orderButton.onclick = () => addOrder(donation.DonationID,donation.FoodItems, donation.Quantity, row);
                 actionCell.appendChild(orderButton);
             });
         } catch (error) {
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function addOrder(foodItems, quantity, row) {
+    function addOrder(donationID,foodItems, quantity, row) {
         const user = JSON.parse(localStorage.getItem('user'));
         const username = user.Username;
 
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         axiosInstance.post('/order', {
             username: username,
+            donationID: donationID,
             foodItems: foodItems,
             quantity: quantity
         })
