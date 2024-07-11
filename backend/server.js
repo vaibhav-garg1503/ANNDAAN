@@ -257,32 +257,54 @@ app.post('/login', async (req, res) => {
 // POST endpoint to handle form submission
 app.post('/submit-donation', upload.single('foodImage'), async (req, res) => {
     try {
-      // Extract data from request body
-      const { foodItems, quantity, username } = req.body; // Include 'username' in req.body
+      const { foodItems, quantity, username } = req.body;
   
-      // Example: Retrieve DonorID based on Username
       let pool = await sql.connect(config);
+  
+      // Retrieve DonorID based on Username
       const result = await pool.request()
-        .query(`SELECT D.DonorID FROM Users U INNER JOIN Donors D ON U.UserID = D.UserID WHERE U.Username = '${username}'`);
+        .input('username', sql.VarChar, username)
+        .query('SELECT D.DonorID FROM Users U INNER JOIN Donors D ON U.UserID = D.UserID WHERE U.Username = @username');
+  
+      if (result.recordset.length === 0) {
+        return res.status(404).json({ message: 'Donor not found' });
+      }
   
       const donorID = result.recordset[0].DonorID;
+      const imagePath = req.file ? req.file.path : null;
   
       // Insert into Donations table
-      const imagePath = req.file ? req.file.path : null; // Check if req.file exists
       await pool.request()
         .input('donorID', sql.Int, donorID)
         .input('foodItems', sql.VarChar(100), foodItems)
         .input('quantity', sql.Int, quantity)
         .input('imagePath', sql.VarChar(255), imagePath)
         .query('INSERT INTO Donations (DonorID, FoodItems, Quantity, ImagePath) VALUES (@donorID, @foodItems, @quantity, @imagePath)');
-        
+  
+      // Update TotalDonations in Donors table
+      const userIdQuery = await pool.request()
+        .input('username', sql.VarChar, username)
+        .query('SELECT UserID FROM Users WHERE Username = @username');
+  
+      if (userIdQuery.recordset.length === 0) {
+        return res.status(500).json({ message: 'Failed to retrieve UserID after insertion' });
+      }
+  
+      const userId = userIdQuery.recordset[0].UserID;
+  
+      await pool.request()
+        .input('userID', sql.Int, userId)
+        .input('quantity', sql.Int, quantity)
+        .query('UPDATE Donors SET TotalDonations = TotalDonations + @quantity WHERE UserID = @userID');
+  
+      console.log('Donation submitted successfully');
       res.status(201).json({ message: 'Donation submitted successfully!' });
     } catch (err) {
-      console.error('Error submitting donation:', err.message);
+      console.error('Error submitting donation:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
-
+  
   app.get('/donations', async (req, res) => {
     try {
         await sql.connect(config);
