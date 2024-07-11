@@ -275,7 +275,7 @@ app.post('/submit-donation', upload.single('foodImage'), async (req, res) => {
         .input('quantity', sql.Int, quantity)
         .input('imagePath', sql.VarChar(255), imagePath)
         .query('INSERT INTO Donations (DonorID, FoodItems, Quantity, ImagePath) VALUES (@donorID, @foodItems, @quantity, @imagePath)');
-  
+        
       res.status(201).json({ message: 'Donation submitted successfully!' });
     } catch (err) {
       console.error('Error submitting donation:', err.message);

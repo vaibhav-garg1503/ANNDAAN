@@ -18,11 +18,15 @@ document.getElementById('donation-form').addEventListener('submit', async functi
             body: formData
         });
 
+        console.log('Response status:', response.status); // Log the status code
+        const data = await response.json(); // Parse the JSON response
+        console.log('Response data:', data);
+
         if (response.ok) {
-            alert('Donation submitted successfully');
+            alert(data.message);
             form.reset();
         } else {
-            alert('Error submitting donation');
+            alert('Error submitting donation' + data.error);
         }
     } catch (error) {
         console.error('Error:', error);
