@@ -1,7 +1,3 @@
-Here’s a sample README file for your food donation system:
-
----
-
 # Food Donation System
 
 ## Overview
