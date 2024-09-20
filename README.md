@@ -1,4 +1,4 @@
-# Food Donation System
+# XcessFood: Food Donation System
 
 ## Overview
 The Food Donation System is a web-based platform designed to facilitate the collection and distribution of surplus food from hostels in Kasargod to orphanages, food banks, old age homes, and other needy organizations. By connecting donors with recipients, the system aims to minimize food waste and help fight hunger in the community.
