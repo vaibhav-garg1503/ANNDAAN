@@ -4,9 +4,24 @@ const multer = require('multer');
 const path = require('path');
 const sql = require('mssql');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+
+// Body parsers
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Serve frontend static files
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+app.use('/home', express.static(path.join(__dirname, '../frontend/home')));
+app.use('/pages', express.static(path.join(__dirname, '../frontend/pages')));
+app.use('/partials', express.static(path.join(__dirname, '../frontend/partials')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 
 // Middleware
 app.use(cors({
@@ -27,17 +42,43 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // MSSMS configuration
-const config = {
-    user: 'sand',
-    password: 'sandr3120',
-    server: 'localhost\\SQLEXPRESS',
-    database: 'foodDB',
+const dbConfig = {
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
     options: {
-        trustServerCertificate: true, // change to false for production
-        encrypt: true, 
-        enableArithAbort: true
+        encrypt: true,
+        trustServerCertificate: true,
     }
 };
+
+
+// Routes
+// Home Page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/home/home.html'));
+});
+
+// About Page
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/pages/about-page/about.html'));
+});
+
+// Donors Page
+app.get('/donors', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/pages/donors-page/donors.html'));
+});
+
+// Join Page
+app.get('/join', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/pages/join-page/join.html'));
+});
+
+// Recipient Page
+app.get('/recipient', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/pages/recipient-page/recipient.html'));
+});
 
 // Endpoint to fetch donors
 app.get('/donors', async (req, res) => {
