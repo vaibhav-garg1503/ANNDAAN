@@ -1,10 +1,10 @@
-# XcessFood: Food Donation System
+# ANNDANN: Food Donation System
 
 ## Overview
-The Food Donation System is a web-based platform designed to facilitate the collection and distribution of surplus food from hostels in Kasargod to orphanages, food banks, old age homes, and other needy organizations. By connecting donors with recipients, the system aims to minimize food waste and help fight hunger in the community.
+The Food Donation System is a web-based platform designed to facilitate the collection and distribution of surplus food from Various location such as hostels, food banks, old age homes, and other needy organizations. By connecting donors with recipients, the system aims to minimize food waste and help fight hunger in the community.
 
 ## Features
-- **Donor Registration:** Hostels in Kasargod can register as donors to offer surplus food.
+- **Donor Registration:** Hotels and Restaurant can register as donors to offer surplus food.
 - **Recipient Registration:** Agencies like food banks and orphanages can register to receive donations.
 - **Admin Verification:** Admins verify new registrations to ensure the authenticity of donors and recipients.
 - **Donation Management:** Donors can log food donations, which are then visible to verified recipients.
