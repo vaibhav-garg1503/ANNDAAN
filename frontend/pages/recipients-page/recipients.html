@@ -6,19 +6,35 @@
     <link rel="stylesheet" href="recipients.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <title>Recipients</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="recipients.js" defer></script>
+    <script src="../recipients-page/recipients.css" defer></script>
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="../../home/home.html">Home</a></li>
-                <li><a href="../about-page/about.html">About</a></li>
-                <li><a href="../donors-page/donors.html">Donors</a></li>
-                <li><a href="recipients.html">Recipients</a></li>
-                <li id="join-link"><a href="../join-page/join.html">Join</a></li>
-            </ul>
+          <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <span class="text-white font-sans-serif border-black border rounded-start-pill border-3"> <img
+                        src="../../assets/logo.png" alt="logo" width="30" height="30"> ANNDAAN</span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto ms-3">
+                        <li class="nav-item "><a class="nav-link text-white" href="../../home/home.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link text-white" href="..//about-page/about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link text-white" href="../donors-page/donors.html">Donors</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link text-white"
+                                href="recipients.html">Recipients</a></li>
+
+                    </ul>
+                    <button type="button" class="btn btn-danger px-4" id="joim"><a class="nav-link"
+                            href="../join-page/join.html">Join</a></button>
+                </div>
+            </div>
         </nav>
     </header>
     <div class="recipient-section">
@@ -49,5 +65,7 @@
             </tbody>
         </table>
     </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

@@ -4,31 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage - Xcess Food Donation System</title>
-    <link rel="stylesheet" href="home.css">
+    <title>ANNDAAN</title>
+      <link rel="icon" type="image/x-icon" href="../assets/logo.png">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../home/home.css">
+
 </head>
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
+                <span class="text-white font-sans-serif border-black border rounded-start-pill border-3"> <img
+                        src="../assets/logo.png" alt="logo" width="30" height="30"> ANNDAAN</span>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pages/about-page/about.html">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pages/donors-page/donors.html">Donors</a></li>
-                        <li class="nav-item"><a class="nav-link"
+                    <ul class="navbar-nav me-auto ms-3">
+                        <li class="nav-item "><a class="nav-link text-white" href="../home/home.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link text-white"
+                                href="../pages/about-page/about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link text-white"
+                                href="../pages/donors-page/donors.html">Donors</a></li>
+                        <li class="nav-item"><a class="nav-link text-white"
                                 href="../pages/recipients-page/recipients.html">Recipients</a></li>
-                        <li class="nav-item" id="join-link"><a class="nav-link"
-                                href="../pages/join-page/join.html">Join</a></li>
+
                     </ul>
+                    <button type="button" class="btn btn-danger px-4" id="joim"><a class="nav-link"
+                            href="../pages/join-page/join.html">Join</a></button>
                 </div>
             </div>
         </nav>
@@ -37,13 +44,13 @@
 
     <div class="slideshow-container">
         <div class="slideshow-slide">
-            <img src="../assets/1.png" alt="Slide 1">
+            <img src="../assets/slide2.jpg" alt="Slide 1">
         </div>
         <div class="slideshow-slide">
-            <img src="../assets/2.png" alt="Slide 2">
+            <img src="../assets/bagimage.jpg" alt="Slide 2">
         </div>
         <div class="slideshow-slide">
-            <img src="../assets/3.png" alt="Slide 3">
+            <img src="../assets/slide3.jpg" alt="Slide 3" rotate="90">
         </div>
     </div>
 
@@ -53,7 +60,29 @@
         <span class="dot" onclick="currentSlide(2)"></span>
         <span class="dot" onclick="currentSlide(3)"></span>
     </div>
+    <!-- How It Works -->
+    <section class="container text-center my-5">
+        <h2>How It Works</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <img src="../assets/Donate.png" width="150" />
+                <h5 class="mt-2">Donate Food</h5>
+                <p>Submit extra food from your hostel or home.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="../assets/collect.png" width="150" />
+                <h5 class="mt-2">We Collect</h5>
+                <p>Our volunteers come and collect the food.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="../assets/serve.png" width="150" />
+                <h5 class="mt-2">We Distribute</h5>
+                <p>We deliver it to orphanages, old age homes, etc.</p>
+            </div>
+        </div>
+    </section>
 
+  
     <section id="vision-mission">
         <h1>Our Vision</h1>
         <p>To create a community where no food goes to waste and every individual has access to nutritious meals,<br>
@@ -62,36 +91,56 @@
         <p>To efficiently collect surplus food from hostels in Kasargod and redistribute it to orphanages, food banks,
             and old age homes,<br> ensuring that excess food serves those in need while reducing food wastage</p>
     </section>
+      <!-- Stats -->
+    <section class=" bg-light py-5">
+        <div class="container text-center stats">
+            <h2>Our Impact</h2>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <h3>100+</h3>
+                    <p>Donors</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>2000+</h3>
+                    <p>Meals Delivered</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>10+</h3>
+                    <p>Cities Covered</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="business-need-waste">
         <div class="section-item">
-            <img src="../assets/operate.webp" alt="How We Operate">
+            <img src="../assets/weoperate.jpg" alt="How We Operate">
             <h2>How We Operate</h2>
             <p>We work with food donors and recipients to ensure that surplus food reaches those who need it most.</p>
         </div>
         <div class="section-item">
-            <img src="../assets/need.jpg" alt="The Need">
+            <img src="../assets/need.jpeg" alt="The Need">
             <h2>The Need</h2>
             <p>Millions of people go hungry every day while perfectly good food goes to waste. Our service bridges this
                 gap.</p>
         </div>
         <div class="section-item">
-            <img src="../assets/waste.webp" alt="The Impact of Food Waste">
+            <img src="../assets/foodwaste.jpeg" alt="The Impact of Food Waste">
             <h2>The Impact of Food Waste</h2>
             <p>Food waste contributes to environmental degradation. By redirecting surplus food, we help mitigate this
                 impact.</p>
         </div>
     </section>
+    
 
     <footer>
-        <p>&copy; 2024 Xcess Food Donation System. All rights reserved.</p>
+        <p>&copy; 2025 ANNDAAN | Made with ❤️ to fight hunger.</p>
+        <p>All rights reserved.</p>
     </footer>
-    <script src="home.js"></script>
     <!-- Bootstrap JS (for toggle menu) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../home/home.js" defer></script>
 
 </body>
 
 </html>
-
-<input type =button>clickme</button>
