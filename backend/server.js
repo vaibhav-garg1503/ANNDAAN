@@ -1,14 +1,24 @@
+
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
-const sql = require('mssql');
+const { Pool } = require('pg');
 const cors = require('cors');
 require('dotenv').config();
+
+
+
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// PostgreSQL pool
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
@@ -22,12 +32,8 @@ app.use('/pages', express.static(path.join(__dirname, '../frontend/pages')));
 app.use('/partials', express.static(path.join(__dirname, '../frontend/partials')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-
 // Middleware
-app.use(cors({
-    origin: 'http://127.0.0.1:5500' //frontend URL
-}));
+app.use(cors({ origin: 'http://127.0.0.1:5500' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -42,142 +48,251 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// MSSMS configuration
-const dbConfig = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_NAME,
-    options: {
-        encrypt: true,
-        trustServerCertificate: true,
-    }
-};
-
-
 // Routes
-// Home Page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/home/home.html'));
 });
 
-// About Page
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/about-page/about.html'));
 });
 
-// Donors Page
 app.get('/donors', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/donors-page/donors.html'));
 });
 
-// Join Page
 app.get('/join', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/join-page/join.html'));
 });
 
-// Recipient Page
 app.get('/recipient', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/recipient-page/recipient.html'));
 });
 
-// Endpoint to fetch donors
-app.get('/donors', async (req, res) => {
+app.get('/donors-data', async (req, res) => {
     try {
-        await sql.connect(config);
-        const result = await sql.query`SELECT DISTINCT Username, Location, TotalDonations FROM Users as U, Donors as D
-            WHERE Role = 'Donor' AND U.UserID = D.UserID`;
-
-        res.json(result.recordset);
+        const result = await pool.query(`SELECT DISTINCT Username, Location, TotalDonations FROM Users U JOIN Donors D ON U.UserID = D.UserID WHERE Role = 'Donor'`);
+        res.json(result.rows);
     } catch (err) {
         console.error('Error fetching donors:', err);
         res.status(500).send('Error fetching donors');
-    } finally {
-        await sql.close();
     }
 });
 
-// Endpoint to handle hostel registration
 app.post('/register_hostel', async (req, res) => {
     const { username, email, password, contact, location } = req.body;
 
-    let pool;
     try {
-        // Connect to the database
-        pool = await sql.connect(config);
+        const userCheck = await pool.query('SELECT * FROM Users WHERE Username = $1', [username]);
+        if (userCheck.rows.length > 0) return res.status(400).json({ message: 'Username already exists' });
 
-        // Check if username already exists
-        const userCheck = await pool.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT * FROM Users WHERE Username = @username');
+        const emailCheck = await pool.query('SELECT * FROM Users WHERE Email = $1', [email]);
+        if (emailCheck.rows.length > 0) return res.status(400).json({ message: 'Email already exists' });
 
-        if (userCheck.recordset.length > 0) {
-            return res.status(400).json({ message: 'Username already exists' });
-        }
+        await pool.query(
+            `INSERT INTO Users (Username, Email, Password, Contact, Location, Role)
+            VALUES ($1, $2, $3, $4, $5, 'Donor')`, [username, email, password, contact, location]
+        );
 
-        // Check if email already exists
-        const emailCheck = await pool.request()
-            .input('email', sql.VarChar, email)
-            .query('SELECT * FROM Users WHERE Email = @Email');
+        const result = await pool.query('SELECT UserID FROM Users WHERE Username = $1', [username]);
+        const userId = result.rows[0].userid;
 
-        if (emailCheck.recordset.length > 0) {
-            return res.status(400).json({ message: 'Email already exists' });
-        }
+        await pool.query('INSERT INTO Donors (UserID, TotalDonations) VALUES ($1, 0)', [userId]);
 
-        // Insert the new user into the Users table
-        const insertQuery1 = `
-            INSERT INTO Users (Username, Email, Password, Contact, Location, Role)
-            VALUES (@username, @Email, @password, @contact, @location, 'Donor');
-        `;
-        await pool.request()
-            .input('username', sql.VarChar, username)
-            .input('email', sql.VarChar, email)
-            .input('password', sql.VarChar, password)
-            .input('contact', sql.BigInt, contact)
-            .input('location', sql.VarChar, location)
-            .query(insertQuery1);
-
-        // Retrieve the UserID of the newly inserted user
-        const userIdQuery = await pool.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT UserID FROM Users WHERE Username = @username');
-        
-        if (userIdQuery.recordset.length === 0) {
-            return res.status(500).json({ message: 'Failed to retrieve UserID after insertion' });
-        }
-
-        const userId = userIdQuery.recordset[0].UserID;
-
-        // Insert into the Donors table with the retrieved UserID and an initial TotalDonations of 0
-        const insertQuery2 = `
-            INSERT INTO Donors (UserID, TotalDonations)
-            VALUES (@userId, 0);
-        `;
-        await pool.request()
-            .input('userId', sql.Int, userId)
-            .query(insertQuery2);
-
-            const userQuery = await pool.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT * FROM Users WHERE Username = @username');
-
-            if (userQuery.recordset.length === 0) {
-                return res.status(500).json({ message: 'Failed to retrieve user after insertion' });
-            }
-
-            const registeredUser = userQuery.recordset[0];
-            
-            res.status(200).send(registeredUser);
+        const userResult = await pool.query('SELECT * FROM Users WHERE Username = $1', [username]);
+        res.status(200).send(userResult.rows[0]);
 
     } catch (err) {
         console.error('Error registering hostel:', err);
         res.status(500).json({ error: 'Error registering hostel', details: err.message });
-    } finally {
-        if (pool) {
-            pool.close(); // Close the connection pool after the request is handled
-        }
     }
 });
+
+// Similarly, convert the /register_agency, /login, /submit-donation, /order and /orders/:username using $1, $2 etc. syntax for PostgreSQL parameterized queries
+
+
+
+/////////////////
+// const express = require('express');
+// const bodyParser = require('body-parser');
+// const multer = require('multer');
+// const path = require('path');
+// const sql = require('mssql');
+// const cors = require('cors');
+// require('dotenv').config();
+
+// const app = express();
+// const port = process.env.PORT || 3000;
+
+
+// // Body parsers
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+
+// // Serve frontend static files
+// app.use(express.static(path.join(__dirname, '../frontend')));
+// app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+// app.use('/home', express.static(path.join(__dirname, '../frontend/home')));
+// app.use('/pages', express.static(path.join(__dirname, '../frontend/pages')));
+// app.use('/partials', express.static(path.join(__dirname, '../frontend/partials')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+// // Middleware
+// app.use(cors({
+//     origin: 'http://127.0.0.1:5500' //frontend URL
+// }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+
+// Configure Multer for file uploads
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, path.join(__dirname, 'uploads/'));
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, `${Date.now()}-${file.originalname}`);
+//     }
+// });
+// const upload = multer({ storage: storage });
+
+// MSSMS configuration
+// const dbConfig = {
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASS,
+//     server: process.env.DB_SERVER,
+//     database: process.env.DB_NAME,
+//     options: {
+//         encrypt: true,
+//         trustServerCertificate: true,
+//     }
+// };
+
+
+// Routes
+// Home Page
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/home/home.html'));
+// });
+
+// // About Page
+// app.get('/about', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/pages/about-page/about.html'));
+// });
+
+// // Donors Page
+// app.get('/donors', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/pages/donors-page/donors.html'));
+// });
+
+// // Join Page
+// app.get('/join', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/pages/join-page/join.html'));
+// });
+
+// // Recipient Page
+// app.get('/recipient', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/pages/recipient-page/recipient.html'));
+// });
+
+// // Endpoint to fetch donors
+// app.get('/donors', async (req, res) => {
+//     try {
+//         await sql.connect(config);
+//         const result = await sql.query`SELECT DISTINCT Username, Location, TotalDonations FROM Users as U, Donors as D
+//             WHERE Role = 'Donor' AND U.UserID = D.UserID`;
+
+//         res.json(result.recordset);
+//     } catch (err) {
+//         console.error('Error fetching donors:', err);
+//         res.status(500).send('Error fetching donors');
+//     } finally {
+//         await sql.close();
+//     }
+// });
+
+// // Endpoint to handle hostel registration
+// app.post('/register_hostel', async (req, res) => {
+//     const { username, email, password, contact, location } = req.body;
+
+//     let pool;
+//     try {
+//         // Connect to the database
+//         pool = await sql.connect(config);
+
+//         // Check if username already exists
+//         const userCheck = await pool.request()
+//             .input('username', sql.VarChar, username)
+//             .query('SELECT * FROM Users WHERE Username = @username');
+
+//         if (userCheck.recordset.length > 0) {
+//             return res.status(400).json({ message: 'Username already exists' });
+//         }
+
+//         // Check if email already exists
+//         const emailCheck = await pool.request()
+//             .input('email', sql.VarChar, email)
+//             .query('SELECT * FROM Users WHERE Email = @Email');
+
+//         if (emailCheck.recordset.length > 0) {
+//             return res.status(400).json({ message: 'Email already exists' });
+//         }
+
+//         // Insert the new user into the Users table
+//         const insertQuery1 = `
+//             INSERT INTO Users (Username, Email, Password, Contact, Location, Role)
+//             VALUES (@username, @Email, @password, @contact, @location, 'Donor');
+//         `;
+//         await pool.request()
+//             .input('username', sql.VarChar, username)
+//             .input('email', sql.VarChar, email)
+//             .input('password', sql.VarChar, password)
+//             .input('contact', sql.BigInt, contact)
+//             .input('location', sql.VarChar, location)
+//             .query(insertQuery1);
+
+//         // Retrieve the UserID of the newly inserted user
+//         const userIdQuery = await pool.request()
+//             .input('username', sql.VarChar, username)
+//             .query('SELECT UserID FROM Users WHERE Username = @username');
+        
+//         if (userIdQuery.recordset.length === 0) {
+//             return res.status(500).json({ message: 'Failed to retrieve UserID after insertion' });
+//         }
+
+//         const userId = userIdQuery.recordset[0].UserID;
+
+//         // Insert into the Donors table with the retrieved UserID and an initial TotalDonations of 0
+//         const insertQuery2 = `
+//             INSERT INTO Donors (UserID, TotalDonations)
+//             VALUES (@userId, 0);
+//         `;
+//         await pool.request()
+//             .input('userId', sql.Int, userId)
+//             .query(insertQuery2);
+
+//             const userQuery = await pool.request()
+//             .input('username', sql.VarChar, username)
+//             .query('SELECT * FROM Users WHERE Username = @username');
+
+//             if (userQuery.recordset.length === 0) {
+//                 return res.status(500).json({ message: 'Failed to retrieve user after insertion' });
+//             }
+
+//             const registeredUser = userQuery.recordset[0];
+            
+//             res.status(200).send(registeredUser);
+
+//     } catch (err) {
+//         console.error('Error registering hostel:', err);
+//         res.status(500).json({ error: 'Error registering hostel', details: err.message });
+//     } finally {
+//         if (pool) {
+//             pool.close(); // Close the connection pool after the request is handled
+//         }
+//     }
+// });
 
 
 // Endpoint to handle agency registration
@@ -434,6 +549,11 @@ app.get('/orders/:username', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+// Start server
+// app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
+// });
 
 // Start server
 app.listen(port, () => {
